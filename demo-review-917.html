@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Workflow Agent - 启动卡片收缩到工作台（输入居中在左栏，含评分）</title>
+  <style>
+    :root{
+      --bg:#f7f7fb;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --primary:#111827;
+      --accent:#3b82f6; /* 改为蓝色主题 */
+      --accent-weak:#dbeafe; /* 蓝色弱化版本 */
+      --progress:#3b82f6; /* 进度条也改为蓝色 */
+      --line:#d1d5db;
+      --node-bg:#fafafa;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--text);
+      background:linear-gradient(180deg,#fff, var(--bg));
+      overflow:hidden;
+    }
+
+    .stage{position:relative;height:100vh;width:100%}
+
+    /* Phase 1：全屏启动界面 */
+    .launch{
+      position:fixed;inset:0;z-index:30;
+      display:flex;background:var(--bg);
+      transition:opacity .3s ease,transform .3s ease;
+    }
+    .launch-left{flex:0 0 20%;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+    .launch-right{flex:1;background:var(--card);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:80px 120px;width:100%}
+    .logo{display:flex;align-items:center;gap:16px;margin-bottom:1.5rem}
+    .logo-badge{width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,#3b82f6,#60a5fa);display:grid;place-items:center;color:#1e40af;font-weight:900;font-size:17px;box-shadow:0 6px 20px rgba(59,130,246,.35)}
+    .logo-title{margin:0;font-size:26px;font-weight:800;letter-spacing:-0.3px}
+    .launch .hint{font-size:15px;color:var(--muted);margin-top:0.5rem;text-align:center;max-width:700px;line-height:1.6;padding:0 20px}
+    .form{display:flex;gap:16px;align-items:center;width:100%;max-width:750px;margin-bottom:0}
+    .input{flex:1;padding:18px 22px;border:1px solid var(--border);border-radius:15px;font-size:15px;outline:none;transition:box-shadow .2s,border-color .2s;min-height:52px}
+    .input:focus{border-color:#93c5fd;box-shadow:0 0 0 3px var(--accent-weak)}
+    .btn{padding:18px 28px;background:var(--primary);color:#fff;border:none;border-radius:15px;font-size:15px;cursor:pointer;transition:transform .06s,opacity .2s,background .2s;font-weight:600;min-height:52px;white-space:nowrap}
+    .btn:hover{background:#000}
+    .btn:active{transform:translateY(1px)}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+
+    /* 启动页：标签与广场样式 */
+    .tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:6px}
+    .tab{padding:8px 10px;border-radius:10px;cursor:pointer;font-size:13px;color:#1f2937;background:#f3f4f6;border:1px solid var(--border);transition:filter .15s,transform .06s}
+    .tab:hover{filter:brightness(0.98)}
+    .tab:active{transform:translateY(1px)}
+    .tab--active{background:var(--accent-weak);border-color:#bfdbfe;color:#1e40af;font-weight:700}
+    .tab-panels{display:block}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+    .left-header{padding:20px 20px 16px 20px;border-bottom:1px solid var(--border)}
+    .left-title{margin:0 0 12px 0;font-weight:800;font-size:16px;color:#0f172a}
+    .left-content{flex:1;padding:20px;overflow:auto}
+    .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+    .chips{display:flex;gap:6px;flex-wrap:wrap}
+    .chip{padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:#fff;font-size:12px;color:#374151;cursor:pointer}
+    .chip.active{background:#dbeafe;color:#1e40af;border-color:#bfdbfe}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+    .card{border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px;display:flex;flex-direction:column;gap:8px}
+    .card h4{margin:0;font-size:14px}
+    .card p{margin:0;color:#6b7280;font-size:12px}
+    .card .meta{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#64748b}
+    .select-btn{padding:8px 10px;border:none;border-radius:10px;background:var(--accent);color:#1e3a8a;cursor:pointer;font-size:12px}
+    .select-btn.selected{background:#10b981;color:#064e3b}
+    .selected-bar{display:flex;gap:12px;flex-wrap:wrap;margin-top:1rem;justify-content:center;min-height:40px;max-width:750px;width:100%}
+    .badge{display:inline-flex;gap:6px;align-items:center;padding:7px 16px;border-radius:999px;background:#e0f2fe;color:#0c4a6e;border:1px solid #bae6fd;font-size:13px;font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+    .badge .x{cursor:pointer;color:#0369a1;margin-left:4px;font-weight:600;opacity:0.7;transition:opacity .2s}
+    .badge .x:hover{opacity:1}
+    @media (max-width:1400px){
+      .launch-right{padding:70px 100px}
+    }
+    @media (max-width:1200px){
+      .launch-right{padding:60px 80px}
+    }
+    @media (max-width:960px){
+      .launch{flex-direction:column}
+      .launch-left{flex:unset;border-right:none;border-bottom:1px solid var(--border)}
+      .launch-right{padding:50px 30px;width:100%}
+      .logo{margin-bottom:1.2rem;gap:14px}
+      .logo-badge{width:40px;height:40px;font-size:15px}
+      .logo-title{font-size:22px}
+      .form{max-width:100%;gap:14px;margin-bottom:0}
+      .input{padding:16px 20px;font-size:15px;min-height:50px}
+      .btn{padding:16px 24px;font-size:15px;min-height:50px}
+      .launch .hint{font-size:14px;max-width:100%;margin-top:0.5rem;padding:0 10px}
+      .selected-bar{margin-top:1rem;gap:10px;max-width:100%}
+      .badge{padding:6px 14px;font-size:12px}
+      .grid{grid-template-columns:1fr}
+    }
+    @media (max-width:480px){
+      .launch-right{padding:40px 20px}
+      .logo{margin-bottom:1rem;gap:12px}
+      .logo-badge{width:36px;height:36px;font-size:14px}
+      .logo-title{font-size:20px}
+      .form{flex-direction:column;gap:12px;align-items:stretch;margin-bottom:0}
+      .input{min-height:48px;padding:14px 18px;font-size:15px}
+      .btn{min-height:48px;padding:14px 20px;font-size:15px}
+      .launch .hint{font-size:13px;margin-top:0.5rem;padding:0 5px}
+      .selected-bar{margin-top:1rem;gap:8px}
+      .badge{padding:5px 12px;font-size:11px}
+    }
+
+    /* Phase 2：工作台 */
+    .workbench{position:absolute;inset:0;padding:16px;opacity:0;transform:translateY(12px);transition:opacity .35s ease,transform .35s ease;pointer-events:none}
+    .workbench.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+    .columns{height:100%;display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
+
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.04)}
+    .panel__head{padding:12px 16px 10px 16px;border-bottom:1px solid var(--border)}
+    .title{margin:0;font-size:16px;font-weight:700}
+    .subtitle{margin:4px 0 0 0;font-size:12px;color:var(--muted)}
+
+    /* 聊天容器：将消息轨道居中显示，两侧留白 */
+    .chat__container{
+      flex:1;overflow:auto;padding:14px;scroll-behavior:smooth;
+      background:radial-gradient(1000px 200px at 10% 0%, rgba(59,130,246,.05), transparent 60%),radial-gradient(800px 200px at 90% 0%, rgba(59,130,246,.05), transparent 60%);
+      display:flex;flex-direction:column;align-items:center; /* 关键：在面板内部居中 */
+    }
+    .panel__footer{border-top:1px solid var(--border);padding:12px;background:#fff}
+    .panel__footer .form{max-width:720px;margin:0 auto;gap:8px}
+    .panel__footer .input{flex:1}
+
+    /* 消息轨道最大宽度，居中，两侧留空 */
+    .msg{display:flex;width:100%;max-width:840px;margin:8px 0;opacity:0;transform:translateY(8px);animation:fadeIn .25s ease forwards}
+    .msg--user{justify-content:flex-end}
+    .bubble{max-width:76%;padding:10px 12px;border-radius:14px;font-size:14px;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,.04);white-space:pre-wrap}
+    .bubble--user{background:#2563eb;color:#fff;border-top-left-radius:14px;border-bottom-left-radius:14px;border-top-right-radius:14px}
+    .bubble--system{background:#f9fafb;color:#111827;border:1px solid var(--border);border-top-right-radius:14px;border-bottom-right-radius:14px;border-top-left-radius:14px}
+    .small{margin-top:6px;font-size:12px;color:var(--muted)}
+
+    .planning{border:1px dashed #bfdbfe;border-radius:12px;padding:10px;background:#eff6ff}
+    .planning h4{margin:0 0 6px 0;font-size:14px}
+    .planning ol{margin:8px 0 8px 18px;padding:0}
+    .planning li{margin:6px 0}
+    .planning .start-btn{display:inline-block;margin-top:8px;padding:8px 12px;background:var(--accent);color:#1e40af;border:none;border-radius:10px;cursor:pointer;font-size:13px;transition:filter .15s,transform .06s}
+    .planning .start-btn:hover{filter:brightness(0.95)}
+    .planning .start-btn:active{transform:translateY(1px)}
+
+    /* 取消抽象进度条视觉，改为具体工具调用日志 */
+
+    .workflow{background:var(--card);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.04)}
+    .workflow__head{padding:12px 16px 10px 16px;border-bottom:1px solid var(--border)}
+    .workflow__body{flex:1;display:flex;flex-direction:column;overflow:hidden}
+    
+    /* 总体进度条（右侧）与阶段进度条（左侧黑盒） */
+    .overall-progress{height:10px;width:100%;background:#eef2f7;border-radius:999px;overflow:hidden;margin:12px 0}
+    .overall-progress__bar{height:100%;width:0%;background:linear-gradient(90deg, var(--accent), var(--progress));transition:width .2s ease}
+    .phase{width:100%;max-width:840px;background:#fff;border:1px dashed #bfdbfe;border-radius:10px;padding:10px;margin:8px 0}
+    .phase-title{font-size:13px;font-weight:700;color:#1f2937;margin:0 0 6px 0}
+    .phase-progress{height:8px;width:100%;background:#eef2f7;border-radius:999px;overflow:hidden;margin:6px 0}
+    .phase-progress__bar{height:100%;width:0%;background:linear-gradient(90deg,#60a5fa,#3b82f6);transition:width .2s ease}
+    
+    .logs{flex:1;overflow:auto;padding:12px 14px;background:#fff}
+    .log-line{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px;color:#374151;padding:4px 0;margin:2px 0;opacity:0;transform:translateY(6px);animation:fadeIn .2s ease forwards;border:none;background:transparent}
+    
+    /* 工具调用信息：使用简洁文本行（不再使用框式 execution-log） */
+    .log-time{color:#64748b;font-weight:500;font-size:11px;min-width:50px}
+    .log-tool{color:#1e40af;font-weight:600}
+    .log-params{background:transparent;border:none;border-radius:0;padding:0;margin-top:0;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:11px;color:#374151}
+    .log-result{color:#059669;font-weight:600}
+    .log-error{color:#dc2626;font-weight:600}
+
+    /* 左侧聊天区的简洁工具调用行（无气泡、无边框） */
+    .plain-log{width:100%;max-width:840px;margin:4px 0;color:#1f2937;font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;border-left:2px solid var(--accent-weak);padding-left:8px}
+    
+
+    .file-card{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:#fff;margin-top:8px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+    .file-icon{width:20px;height:24px;border:1px solid var(--border);border-radius:3px;background:linear-gradient(180deg,#f3f4f6,#e5e7eb);position:relative}
+    .file-icon::after{content:'';position:absolute;top:0;right:0;width:8px;height:8px;background:#fff;border-left:1px solid var(--border);border-bottom:1px solid var(--border);transform:translate(1px,1px) rotate(45deg)}
+
+    /* 评分组件样式 */
+    .rating{margin-top:8px;user-select:none}
+    .stars{display:flex;gap:4px;font-size:20px;cursor:pointer}
+    .star{filter:grayscale(1) opacity(.6); transition:filter .15s ease,transform .06s}
+    .star.active{filter:none}
+    .star:active{transform:translateY(1px)}
+
+    @keyframes fadeIn{to{opacity:1;transform:translateY(0)}}
+
+    /* 关键过渡：Phase 1 → Phase 2（视觉） */
+    .to-workbench .launch{
+      opacity:0;transform:translateY(-20px);
+    }
+    .to-workbench .launch .launch-left{display:none}
+    .to-workbench .launch .launch-right{
+      position:fixed;bottom:10px;left:50%;
+      transform:translateX(-50%) translateY(0) scale(.98);
+      width:min(980px,92vw);max-width:none;border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.08);padding:12px;
+      background:var(--card);border:1px solid var(--border);
+    }
+    .to-workbench .launch .logo{opacity:0;height:0;margin:0;transform:translateY(-6px)}
+    .to-workbench .launch .hint{opacity:0;height:0}
+    .to-workbench .launch .form .btn{border-radius:10px;padding:12px 16px}
+    .to-workbench .launch .form .input{padding:12px 14px;font-size:14px}
+
+    @media (max-width:960px){
+      .columns{grid-template-columns:1fr}
+      .panel__footer .form{max-width:100%}
+      .msg{max-width:100%}
+    }
+
+    .hide{display:none}
+    /* 架构与数据流可视化模态框 */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:50}
+    .modal.visible{display:flex}
+    .modal__panel{width:min(920px,92vw);max-height:86vh;overflow:auto;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+    .modal__head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}
+    .modal__title{margin:0;font-size:15px;font-weight:700}
+    .modal__close{border:none;background:#f3f4f6;color:#374151;padding:6px 10px;border-radius:8px;cursor:pointer}
+    .modal__body{padding:16px}
+    .arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .arch-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff}
+    .arch-card h4{margin:0 0 8px 0;font-size:13px}
+    .arch-list{margin:0;padding-left:18px}
+    .arch-list li{margin:6px 0;font-size:13px;color:#374151}
+  </style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <!-- Phase 1：全屏启动界面 -->
+    <section class="launch" id="launch">
+      <!-- 左侧：资源广场（20%） -->
+      <aside class="launch-left" aria-label="资源广场">
+        <div class="left-header">
+          <h3 class="left-title">资源广场</h3>
+          <div class="tabs" role="tablist" aria-label="资源切换">
+            <button class="tab tab--active" data-tab="agents" role="tab" aria-selected="true" id="tab-agents">智能体</button>
+            <button class="tab" data-tab="plugins" role="tab" aria-selected="false" id="tab-plugins">MCP 插件</button>
+          </div>
+        </div>
+        <div class="left-content">
+          <div class="tab-panels">
+            <div class="tab-panel active" id="panel-agents" role="tabpanel" aria-labelledby="tab-agents">
+              <div class="toolbar">
+                <input id="agentSearch" class="input" style="max-width:100%" placeholder="搜索智能体..." />
+                <div id="agentChips" class="chips" aria-label="分类筛选"></div>
+              </div>
+              <div id="agentGrid" class="grid" aria-live="polite"></div>
+            </div>
+            <div class="tab-panel" id="panel-plugins" role="tabpanel" aria-labelledby="tab-plugins">
+              <div class="toolbar">
+                <input id="pluginSearch" class="input" style="max-width:100%" placeholder="搜索插件..." />
+                <div id="pluginChips" class="chips" aria-label="分类筛选"></div>
+              </div>
+              <div id="pluginGrid" class="grid" aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+      <!-- 右侧：任务输入区（80%） -->
+      <div class="launch-right">
+        <div class="logo">
+          <div class="logo-badge">WA</div>
+          <h1 class="logo-title">Workflow Agent</h1>
+        </div>
+        <form id="mainForm" class="form">
+          <input id="mainInput" class="input" type="text" placeholder="请输入您的任务..." />
+          <button id="mainSend" class="btn" type="submit" aria-label="开始执行">开始</button>
+        </form>
+        <div class="hint">例如：请收集南海舆情的相关情况，生成一份简单的总结，并用一段音频内容播报这段总结内容</div>
+        <div id="selectionBar" class="selected-bar" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- Phase 2：工作台 -->
+    <section class="workbench" id="workbench" aria-label="Workbench">
+      <div class="columns">
+        <!-- 左侧：对话历史（消息轨道在面板内部居中） -->
+        <div class="panel">
+          <div class="panel__head">
+            <h2 class="title">对话历史</h2>
+            <p class="subtitle">系统与用户消息</p>
+          </div>
+          <div id="chatContainer" class="chat__container"></div>
+          <div class="panel__footer" id="panelFooter"></div>
+        </div>
+
+        <!-- 右侧：计划步骤和日志 -->
+        <div class="workflow">
+          <div class="workflow__head">
+            <h2 class="title" style="font-size:16px">工作执行情况展示</h2>
+            <p class="subtitle">整体进度与详细日志</p>
+          </div>
+          <div class="workflow__body">
+            <div style="padding:16px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#fff,#fcfdfc)">
+              <div style="font-size:12px;color:var(--muted);margin-bottom:8px">总体进度</div>
+              <div class="overall-progress"><div class="overall-progress__bar" id="overallBar"></div></div>
+            </div>
+            <div class="logs" id="logs">
+              <div class="log-line">提示：当任务开始后，这里将展示详细执行日志。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      const stage = document.getElementById('stage');
+      const launch = document.getElementById('launch');
+      const workbench = document.getElementById('workbench');
+
+      const mainForm = document.getElementById('mainForm');
+      const mainInput = document.getElementById('mainInput');
+      const mainSend = document.getElementById('mainSend');
+      // 新增：标签与广场节点（启动界面左侧）
+      const tabs = Array.from(document.querySelectorAll('.launch-left .tab'));
+      const panels = {
+        agents: document.getElementById('panel-agents'),
+        plugins: document.getElementById('panel-plugins')
+      };
+      const selectionBar = document.getElementById('selectionBar');
+      const agentSearch = document.getElementById('agentSearch');
+      const agentChips = document.getElementById('agentChips');
+      const agentGrid = document.getElementById('agentGrid');
+      const pluginSearch = document.getElementById('pluginSearch');
+      const pluginChips = document.getElementById('pluginChips');
+      const pluginGrid = document.getElementById('pluginGrid');
+      // 输入框 hover 提示预设文案
+      const presetText = '请收集南海舆情的相关情况，生成一份简单的总结，并用一段音频内容播报这段总结内容';
+
+
+      const chatContainer = document.getElementById('chatContainer');
+      const panelFooter = document.getElementById('panelFooter');
+
+      const logs = document.getElementById('logs');
+      // 无障碍：动态内容区域播报
+      chatContainer.setAttribute('aria-live','polite');
+      logs.setAttribute('aria-live','polite');
+
+      let isBusy = false;
+      let transitioned = false;
+
+      function scrollChat(){ chatContainer.scrollTop = chatContainer.scrollHeight; }
+      function scrollLogs(){ logs.scrollTop = logs.scrollHeight; }
+      function setBusy(b){ isBusy = b; mainInput.disabled = b; mainSend.disabled = b; }
+
+      function addMessage({ role = 'system', html = '' }){
+        const msg = document.createElement('div');
+        msg.className = 'msg ' + (role === 'user' ? 'msg--user' : '');
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble ' + (role === 'user' ? 'bubble--user' : 'bubble--system');
+        if(role === 'user'){
+          bubble.textContent = html; // XSS 防护：用户内容用文本
+        }else{
+          bubble.innerHTML = html;
+        }
+        msg.appendChild(bubble);
+        chatContainer.appendChild(msg);
+        scrollChat();
+        return { msg, bubble };
+      }
+      function updateBubble(bubble, html){ bubble.innerHTML = html; scrollChat(); }
+
+      function appendLog(text, type = 'info'){
+        const line = document.createElement('div');
+        line.className = 'log-line';
+        
+        const timestamp = new Date().toLocaleTimeString('zh-CN', {hour12: false});
+        const typeIcon = {
+          'info': '•',
+          'success': '✓',
+          'warning': '!',
+          'error': '✗',
+          'debug': '?'
+        }[type] || '•';
+        
+        line.innerHTML = `<span style="color:#6b7280;margin-right:8px">[${timestamp}]</span><span style="margin-right:8px">${typeIcon}</span>${text}`;
+        logs.appendChild(line);
+        scrollLogs();
+      }
+      
+      function appendDetailedLog(agent, action, details, status = 'info'){
+        const timestamp = new Date().toLocaleTimeString('zh-CN', {hour12: false});
+        const line = document.createElement('div');
+        line.className = 'log-line';
+        
+        const statusIcon = {
+          'start': '▶',
+          'running': '●',
+          'success': '✓',
+          'error': '✗',
+          'debug': '?'
+        }[status] || '•';
+        
+        line.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="color:#6b7280">[${timestamp}] ${statusIcon}</span>
+            <span style="color:#1e40af;font-weight:600">${agent}</span>
+          </div>
+          <div style="color:#374151;margin-bottom:2px">${action}</div>
+          <div style="color:#6b7280;font-size:11px">${details}</div>
+        `;
+        logs.appendChild(line);
+        scrollLogs();
+      }
+      
+      // 工具调用日志
+      function addExecutionLog(stepIndex, toolName, action, type = 'start', params = null, result = null){
+        const time = new Date().toLocaleTimeString('zh-CN', {hour12: false});
+        const parts = [];
+        if(type === 'start'){
+          parts.push(`开始执行步骤${stepIndex + 1}: [${toolName}] - ${action}`);
+        }else if(type === 'running'){
+          parts.push(`执行中 步骤${stepIndex + 1}: [${toolName}] - ${action}`);
+        }else if(type === 'completed'){
+          parts.push(`步骤${stepIndex + 1}完成: [${toolName}] 返回 ${result ?? '成功'}`);
+        }else if(type === 'failed'){
+          parts.push(`步骤${stepIndex + 1}失败: [${toolName}] - ${action}`);
+        }
+        if(params){
+          parts.push(`<span class="log-params">调用[${toolName}] 参数: ${JSON.stringify(params)}</span>`);
+        }
+        const line = document.createElement('div');
+        line.className = 'plain-log';
+        line.setAttribute('data-type', type);
+        line.innerHTML = `<span class="log-time">[${time}]</span> ${parts.join('<br/>')}`;
+        chatContainer.appendChild(line);
+        scrollChat();
+        
+      }
+      
+      // 抽象进度条已移除，统一用具体工具调用日志替代
+
+
+      function showPlanningAndBindStart(){
+        // 需求分析展示（黑盒阶段）
+        const phases = [
+          { title:'信息检索与筛选', tools:[{name:'Serper API', action:'检索南海舆情相关新闻/报告'}] },
+          { title:'分析与总结', tools:[{name:'Text Analysis', action:'聚类与要点提炼'}] },
+          { title:'音频播报合成', tools:[{name:'TTS Engine', action:'根据总结生成音频'}] }
+        ];
+        const html = `
+          <div class="planning">
+            <h4><strong>需求分析</strong></h4>
+            <div class="small">基于输入推断用户可能想做的事情：</div>
+            <ul style="margin:8px 0;padding-left:18px;font-size:12px;color:#374151">
+              <li>收集南海地区最新舆情动态和热点事件</li>
+              <li>整理分析舆情数据，提取关键信息点</li>
+              <li>生成结构化的舆情总结报告</li>
+              <li>将总结内容转换为语音播报</li>
+            </ul>
+            <div class="small" style="margin-top:8px;color:#6b7280">系统将分阶段执行，每个阶段独立推进并展示详细过程。</div>
+            <button class="start-btn" id="startExecBtn">开始执行</button>
+          </div>
+        `;
+        const { bubble } = addMessage({ role:'system', html: html });
+
+        const startBtn = bubble.querySelector('#startExecBtn');
+        startBtn.addEventListener('click', async ()=>{
+          if(isBusy) return;
+          setBusy(true);
+          appendLog('开始执行：开始任务推进', 'success');
+          appendDetailedLog('System', '初始化', '创建总体进度与阶段推进', 'start');
+
+          const overallBar = document.getElementById('overallBar');
+
+          // 依次推进每个阶段（独立出现，不是一开始全展示）
+          for(let i=0;i<phases.length;i++){
+            const phase = phases[i];
+            
+            // 为当前阶段创建独立的阶段卡片
+            const { bubble: phaseBubble } = addMessage({ 
+              role:'system', 
+              html:`<div class="phase"><h5 class="phase-title">${phase.title}</h5><div class="phase-progress"><div class="phase-progress__bar"></div></div><div class="small">开始执行...</div></div>` 
+            });
+            const bar = phaseBubble.querySelector('.phase-progress__bar');
+            const info = phaseBubble.querySelector('.small');
+            
+            appendLog(`阶段${i+1} 开始：${phase.title}`, 'info');
+            appendDetailedLog(phase.tools[0].name, '初始化', '准备执行 ' + phase.tools[0].action, 'start');
+
+            // 模拟阶段内部推进，并展示详细的工具调用和阶段性成果
+            await new Promise(resolve=>{
+              const total = 2000 + Math.random()*800;
+              const start = Date.now();
+              const timer = setInterval(()=>{
+                const progress = Math.min(100, Math.round((Date.now()-start)/total*100));
+                bar.style.width = progress + '%';
+                overallBar.style.width = Math.round(((i + progress/100)/phases.length)*100) + '%';
+                
+                // 在进度条下方展示工具调用详情
+                if(progress >= 30 && !info.dataset.tool1Shown){
+                  info.innerHTML = '执行中...<br/><span style="color:#1e40af;font-size:11px">调用 ' + phase.tools[0].name + ': ' + phase.tools[0].action + '</span>';
+                  info.dataset.tool1Shown = 'true';
+                  appendDetailedLog(phase.tools[0].name, '执行中', '正在执行 ' + phase.tools[0].action, 'running');
+                }
+                if(progress >= 60 && !info.dataset.tool2Shown){
+                  info.innerHTML += '<br/><span style="color:#059669;font-size:11px">工具调用完成，开始处理数据...</span>';
+                  info.dataset.tool2Shown = 'true';
+                  appendDetailedLog(phase.tools[0].name, '数据处理', '开始处理返回的数据，进行格式化和分析', 'running');
+                }
+                if(progress >= 90 && !info.dataset.resultShown){
+                  const results = {
+                    '信息检索与筛选': '检索到15条相关新闻，筛选出8条核心信息',
+                    '分析与总结': '完成数据聚类分析，提取4个关键要点',
+                    '音频播报合成': '生成2分30秒音频文件，音质清晰'
+                  };
+                  info.innerHTML += '<br/><span style="color:#059669;font-size:11px">阶段性成果: ' + results[phase.title] + '</span>';
+                  info.dataset.resultShown = 'true';
+                  appendDetailedLog(phase.tools[0].name, '完成', results[phase.title], 'success');
+                }
+                
+                if(progress>=100){ 
+                  clearInterval(timer); 
+                  info.innerHTML = '完成';
+                  resolve(); 
+                }
+              }, 120);
+            });
+
+            appendLog(`阶段${i+1} 完成：${phase.title}`, 'success');
+          }
+
+          appendLog('全部阶段完成', 'success');
+          appendDetailedLog('System', '任务完成', '黑盒流程已完成并输出阶段结果', 'success');
+
+          // 输出最终结果卡片（简洁版）
+          const { bubble: resultBubble } = addMessage({ 
+            role:'system', 
+            html:`
+              <div class="planning" style="background:#f0f9ff;border-color:#0ea5e9">
+                <h4><strong>任务完成</strong></h4>
+                <div style="margin:8px 0;font-size:13px;color:#374151;line-height:1.4">
+                  <strong>舆情总结：</strong>南海地区热点集中在资源开发争议，国际关注度上升，需加强对话合作。<br/>
+                  <strong>音频播报：</strong><a href="#" style="color:#3b82f6;text-decoration:none">播放音频</a> (2分30秒)
+                </div>
+                <div class="small" style="color:#6b7280;margin-top:6px">
+                  ${new Date().toLocaleString('zh-CN')} | 多平台舆情监测
+                </div>
+              </div>
+            ` 
+          });
+
+          setBusy(false);
+        }, { once:true });
+      }
+
+      function dockFormIntoPanel(){
+        // 迁移选择徽章到工作台输入区上方
+        const container = document.createElement('div');
+        container.className = 'selected-bar';
+        container.id = 'selectionBarDocked';
+        panelFooter.innerHTML = '';
+        panelFooter.appendChild(container);
+        panelFooter.appendChild(mainForm);
+        launch.classList.add('hide');
+        // 同步徽章
+        function syncDocked(){
+          container.innerHTML = selectionBar.innerHTML;
+          container.querySelectorAll('.x').forEach(x=>{
+            x.addEventListener('click', ()=>{
+              const type = x.getAttribute('data-type');
+              const id = x.getAttribute('data-id');
+              if(type==='agent') selected.agents.delete(id); else selected.plugins.delete(id);
+              // 重渲染两端
+              const evt = new Event('sync');
+              selectionBar.dispatchEvent(evt);
+            });
+          });
+        }
+        selectionBar.addEventListener('sync', ()=>{
+          renderBadges();
+          renderAgentGrid();
+          renderPluginGrid();
+          syncDocked();
+        });
+        // 首次同步
+        syncDocked();
+      }
+
+      function startTransition(){
+        if(transitioned) {
+          // 如果已经跳转过，确保工作台可见
+          workbench.classList.add('visible');
+          return;
+        }
+        transitioned = true;
+        document.body.classList.add('to-workbench');
+        setTimeout(()=>{
+          workbench.classList.add('visible');
+          dockFormIntoPanel();
+          mainInput && mainInput.focus();
+        }, 150);
+      }
+
+      function handleUserInput(text){
+        const trimmed = text.trim();
+        if(!trimmed) return;
+
+        // 修正：改为识别南海和视频相关关键词
+        const lower = trimmed.toLowerCase();
+        const hasSouthChinaSea = lower.includes('南海') || lower.includes('south china sea') || lower.includes('南中国海');
+        const hasVideo = lower.includes('视频') || lower.includes('video') || lower.includes('脚本') || lower.includes('总结');
+
+        if(!(hasSouthChinaSea && hasVideo)){
+          addMessage({ role:'system', html:'您好！现在提供三种入口：在“任务”页直接输入，或先到“智能体广场 / MCP 插件广场”浏览并选择后再输入。演示任务建议包含“南海”和“总结”。' });
+          return;
+        }
+
+        startTransition();
+        appendLog('收到新任务：开始需求分析', 'info');
+        appendDetailedLog('System', '任务接收', '用户输入已接收，开始需求分析', 'start');
+
+        addMessage({ role:'user', html: trimmed });
+
+        setBusy(true);
+        setTimeout(()=>{
+          showPlanningAndBindStart();
+          setBusy(false);
+        }, 450);
+      }
+
+      mainForm.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        if(isBusy) return;
+        const v = mainInput.value;
+        handleUserInput(v);
+        // 在接受任务后再清空输入框
+        const lower = v.toLowerCase();
+        const ok = (lower.includes('南海') || lower.includes('south china sea') || lower.includes('南中国海')) && (lower.includes('视频') || lower.includes('video') || lower.includes('脚本') || lower.includes('总结'));
+        if(ok){ mainInput.value = ''; }
+      });
+
+      // ====== 启动页左侧标签切换 ======
+      function switchTab(name){
+        tabs.forEach(t=>{
+          const active = t.dataset.tab === name;
+          t.classList.toggle('tab--active', active);
+          t.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        Object.entries(panels).forEach(([key, el])=>{
+          el.classList.toggle('active', key === name);
+        });
+      }
+      tabs.forEach(t=>{
+        t.addEventListener('click', ()=> switchTab(t.dataset.tab));
+      });
+
+      // ====== 数据：智能体与插件 ======
+      const agentCatalog = [
+        { id:'agent-da', name:'数据分析助手', desc:'表格/可视化/探索性分析', category:'数据分析' },
+        { id:'agent-cc', name:'内容创作助手', desc:'写作/改写/总结', category:'内容创作' },
+        { id:'agent-code', name:'代码助手', desc:'代码补全/调试/重构', category:'开发工具' },
+        { id:'agent-research', name:'检索研究员', desc:'资料检索/引用管理', category:'研究' },
+        { id:'agent-audio', name:'音频制作', desc:'TTS/配音/剪辑建议', category:'多媒体' },
+        { id:'agent-video', name:'视频脚本助手', desc:'脚本/分镜/旁白', category:'多媒体' }
+      ];
+      const pluginCatalog = [
+        { id:'plg-serper', name:'Serper 搜索', desc:'谷歌搜索 API', category:'搜索引擎' },
+        { id:'plg-openapi', name:'OpenAPI 连接器', desc:'对接任意 OpenAPI', category:'API 连接器' },
+        { id:'plg-csv', name:'CSV 处理器', desc:'解析/筛选/统计', category:'数据处理' },
+        { id:'plg-db', name:'数据库连接器', desc:'查询与可视化', category:'数据处理' },
+        { id:'plg-image', name:'图像处理', desc:'压缩/滤镜/识别', category:'多媒体' },
+        { id:'plg-tts', name:'TTS 引擎', desc:'文本转语音', category:'多媒体' }
+      ];
+
+      const agentCategories = ['全部','数据分析','内容创作','开发工具','研究','多媒体'];
+      const pluginCategories = ['全部','搜索引擎','API 连接器','数据处理','多媒体'];
+
+      const selected = { agents: new Set(), plugins: new Set() };
+
+      function renderBadges(){
+        selectionBar.innerHTML = '';
+        [...selected.agents].forEach(id=>{
+          const item = agentCatalog.find(x=>x.id===id);
+          if(!item) return;
+          const b = document.createElement('span');
+          b.className = 'badge';
+          b.innerHTML = `${item.name}<span class="x" data-type="agent" data-id="${id}">✕</span>`;
+          selectionBar.appendChild(b);
+        });
+        [...selected.plugins].forEach(id=>{
+          const item = pluginCatalog.find(x=>x.id===id);
+          if(!item) return;
+          const b = document.createElement('span');
+          b.className = 'badge';
+          b.innerHTML = `${item.name}<span class="x" data-type="plugin" data-id="${id}">✕</span>`;
+          selectionBar.appendChild(b);
+        });
+        selectionBar.querySelectorAll('.x').forEach(x=>{
+          x.addEventListener('click', ()=>{
+            const type = x.getAttribute('data-type');
+            const id = x.getAttribute('data-id');
+            if(type==='agent') selected.agents.delete(id); else selected.plugins.delete(id);
+            renderBadges();
+            renderAgentGrid();
+            renderPluginGrid();
+          });
+        });
+        // 通知工作台徽章同步
+        const evt = new Event('sync');
+        selectionBar.dispatchEvent(evt);
+      }
+
+      function buildChips(container, categories, onPick){
+        container.innerHTML = '';
+        categories.forEach((c, idx)=>{
+          const el = document.createElement('button');
+          el.type = 'button';
+          el.className = 'chip' + (idx===0 ? ' active' : '');
+          el.textContent = c;
+          el.addEventListener('click', ()=>{
+            container.querySelectorAll('.chip').forEach(n=>n.classList.remove('active'));
+            el.classList.add('active');
+            onPick(c);
+          });
+          container.appendChild(el);
+        });
+      }
+
+      let agentFilter = { q:'', cat:'全部' };
+      let pluginFilter = { q:'', cat:'全部' };
+
+      function renderAgentGrid(){
+        const q = agentFilter.q.trim().toLowerCase();
+        const cat = agentFilter.cat;
+        const list = agentCatalog.filter(a=>
+          (cat==='全部'||a.category===cat) &&
+          (!q || a.name.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q))
+        );
+        agentGrid.innerHTML = '';
+        list.forEach(a=>{
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <h4>${a.name}</h4>
+            <p>${a.desc}</p>
+            <div class="meta"><span>${a.category}</span>
+            <button class="select-btn ${selected.agents.has(a.id)?'selected':''}" data-id="${a.id}">${selected.agents.has(a.id)?'已选择':'选择'}</button></div>`;
+          agentGrid.appendChild(card);
+          const btn = card.querySelector('.select-btn');
+          btn.addEventListener('click', ()=>{
+            if(selected.agents.has(a.id)) selected.agents.delete(a.id); else selected.agents.add(a.id);
+            renderAgentGrid();
+            renderBadges();
+          });
+        });
+      }
+
+      function renderPluginGrid(){
+        const q = pluginFilter.q.trim().toLowerCase();
+        const cat = pluginFilter.cat;
+        const list = pluginCatalog.filter(p=>
+          (cat==='全部'||p.category===cat) &&
+          (!q || p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q))
+        );
+        pluginGrid.innerHTML = '';
+        list.forEach(p=>{
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <h4>${p.name}</h4>
+            <p>${p.desc}</p>
+            <div class="meta"><span>${p.category}</span>
+            <button class="select-btn ${selected.plugins.has(p.id)?'selected':''}" data-id="${p.id}">${selected.plugins.has(p.id)?'已启用':'启用'}</button></div>`;
+          pluginGrid.appendChild(card);
+          const btn = card.querySelector('.select-btn');
+          btn.addEventListener('click', ()=>{
+            if(selected.plugins.has(p.id)) selected.plugins.delete(p.id); else selected.plugins.add(p.id);
+            renderPluginGrid();
+            renderBadges();
+          });
+        });
+      }
+
+      // 初始化 chips、搜索与网格
+      buildChips(agentChips, agentCategories, (c)=>{ agentFilter.cat=c; renderAgentGrid(); });
+      buildChips(pluginChips, pluginCategories, (c)=>{ pluginFilter.cat=c; renderPluginGrid(); });
+      agentSearch.addEventListener('input', ()=>{ agentFilter.q = agentSearch.value; renderAgentGrid(); });
+      pluginSearch.addEventListener('input', ()=>{ pluginFilter.q = pluginSearch.value; renderPluginGrid(); });
+      renderAgentGrid();
+      renderPluginGrid();
+      renderBadges();
+    })();
+  </script>
+  
+</body>
+</html>
