@@ -37,7 +37,7 @@
       display:flex;background:var(--bg);
       transition:opacity .3s ease,transform .3s ease;
     }
-    .launch-left{flex:0 0 20%;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+    .launch-left{flex:0 0 15%;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
     .launch-right{flex:1;background:var(--card);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:80px 120px;width:100%}
     .logo{display:flex;align-items:center;gap:16px;margin-bottom:1.5rem}
     .logo-badge{width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,#3b82f6,#60a5fa);display:grid;place-items:center;color:#1e40af;font-weight:900;font-size:17px;box-shadow:0 6px 20px rgba(59,130,246,.35)}
@@ -60,9 +60,28 @@
     .tab-panels{display:block}
     .tab-panel{display:none}
     .tab-panel.active{display:block}
-    .left-header{padding:20px 20px 16px 20px;border-bottom:1px solid var(--border)}
+    .left-header{padding:20px 16px 16px 16px;border-bottom:1px solid var(--border)}
     .left-title{margin:0 0 12px 0;font-weight:800;font-size:16px;color:#0f172a}
-    .left-content{flex:1;padding:20px;overflow:auto}
+    .left-content{flex:1;padding:16px;overflow:auto}
+    
+    /* 导航按钮样式 */
+    .nav-buttons{display:flex;flex-direction:column;gap:12px}
+    .nav-btn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:12px;background:#fff;color:#374151;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s ease;text-align:left}
+    .nav-btn:hover{background:#f8fafc;border-color:#c7d2fe;color:#1e40af;transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .nav-btn:active{transform:translateY(0);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+    .nav-icon{font-size:18px;flex-shrink:0}
+    .nav-text{flex:1}
+
+    /* 广场页面样式 */
+    .square-page{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;background:var(--bg);opacity:0;transform:translateX(20px);transition:opacity .3s ease,transform .3s ease;pointer-events:none}
+    .square-page.visible{opacity:1;transform:translateX(0);pointer-events:auto}
+    .square-header{display:flex;align-items:center;gap:16px;padding:20px 24px;border-bottom:1px solid var(--border);background:var(--card)}
+    .back-btn{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:#fff;color:#374151;font-size:14px;cursor:pointer;transition:all .2s ease}
+    .back-btn:hover{background:#f8fafc;border-color:#c7d2fe;color:#1e40af}
+    .square-title{margin:0;font-size:20px;font-weight:700;color:#111827}
+    .square-content{flex:1;padding:24px;overflow:auto}
+    .square-toolbar{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+    .square-toolbar .input{max-width:400px}
     .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
     .chips{display:flex;gap:6px;flex-wrap:wrap}
     .chip{padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:#fff;font-size:12px;color:#374151;cursor:pointer}
@@ -115,7 +134,8 @@
     /* Phase 2：工作台 */
     .workbench{position:absolute;inset:0;padding:16px;opacity:0;transform:translateY(12px);transition:opacity .35s ease,transform .35s ease;pointer-events:none}
     .workbench.visible{opacity:1;transform:translateY(0);pointer-events:auto}
-    .columns{height:100%;display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
+    .columns{height:100%;display:grid;grid-template-columns:1.6fr 1fr;gap:16px;transition:grid-template-columns 0.4s ease}
+    .columns.single{grid-template-columns:1fr}
 
     .panel{background:var(--card);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.04)}
     .panel__head{padding:12px 16px 10px 16px;border-bottom:1px solid var(--border)}
@@ -148,11 +168,125 @@
     .planning .start-btn:hover{filter:brightness(0.95)}
     .planning .start-btn:active{transform:translateY(1px)}
 
+    /* 新的卡片样式 */
+    .analysis-card{border:1px solid #e5e7eb;border-radius:12px;padding:12px;background:#fff;margin:8px 0;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .analysis-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .analysis-icon{font-size:16px}
+    .analysis-title{font-weight:600;font-size:14px;color:#111827}
+    .analysis-status{font-size:12px;color:#6b7280;margin-left:auto}
+    .analysis-content{display:flex;flex-direction:column;gap:4px}
+    .analysis-item{font-size:12px;color:#374151;padding:2px 0;line-height:1.4}
+
+    .steps-container{border:1px solid #e5e7eb;border-radius:12px;padding:12px;background:#fff;margin:8px 0;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .steps-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .steps-icon{font-size:16px}
+    .steps-title{font-weight:600;font-size:14px;color:#111827}
+    .steps-list{display:flex;flex-direction:column;gap:6px}
+    .step-item{display:flex;align-items:center;gap:8px;padding:4px 0}
+    .step-circle{font-size:14px;color:#6b7280;min-width:16px;text-align:center}
+    .step-title{font-size:13px;color:#374151}
+    .step-running .step-title{color:#3b82f6;font-weight:500}
+    .step-completed .step-title{color:#059669;font-weight:500}
+
+    .tool-card{border:1px solid #d1d5db;border-radius:10px;padding:10px;background:#f9fafb;margin:8px 0;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+    .tool-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .tool-name{font-weight:600;font-size:12px;color:#1e40af}
+    .tool-action{font-size:11px;color:#6b7280}
+    .tool-params{margin-bottom:6px}
+    .param-item{display:flex;gap:4px;font-size:11px}
+    .param-key{color:#6b7280;font-weight:500}
+    .param-value{color:#374151;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .tool-status{font-size:11px;color:#6b7280;text-align:right}
+
+    .result-card{border:1px solid #10b981;border-radius:12px;padding:12px;background:#f0fdf4;margin:8px 0;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .result-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .result-icon{font-size:16px}
+    .result-title{font-weight:600;font-size:14px;color:#059669}
+    .result-content{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+    .result-item{font-size:13px;color:#374151;line-height:1.4}
+    .result-meta{font-size:11px;color:#6b7280;text-align:right}
+
+    /* 简约风格：思考气泡与内联选择 */
+    .thought{position:relative;border:1px solid var(--border);border-radius:10px;background:#fff;padding:8px 10px}
+    .thought-head{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+    .thought-icon{font-size:15px}
+    .thought-title{font-weight:600;font-size:13px;color:#111827}
+    .thought-body{font-size:13px;color:#374151;line-height:1.45}
+    .thought-footer{display:flex;justify-content:flex-end;margin-top:4px}
+    .thought-toggle{border:none;background:#f3f4f6;color:#374151;padding:5px 9px;border-radius:8px;font-size:12px;cursor:pointer}
+
+    .inline-choice{border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px 12px}
+    .inline-choice-title{font-weight:600;font-size:13px;margin-bottom:8px;color:#111827}
+    .inline-choice-options{display:flex;gap:8px;flex-wrap:wrap}
+    .inline-choice-btn{padding:6px 12px;border:1px solid #dbeafe;border-radius:999px;background:#fff;color:#1e40af;font-size:12px;cursor:pointer}
+    .inline-choice-btn.selected{background:#1e40af;color:#fff;border-color:#1e40af}
+
+    /* 简约风格：最小化结果卡片 */
+    .result-card.minimal{border:1px solid var(--border);background:#fff;box-shadow:none}
+    .result-card.minimal .result-title{color:#111827}
+
+    /* 分层文本行（步骤开始/调用/思考） */
+    .flow-line{font-size:13px;color:#111827;margin:6px 0}
+    .flow-line.root{font-weight:600}
+    .flow-line.indent-1{margin-left:16px;color:#374151}
+
+    /* 思考中标签样式（用于需求分析与步骤间思考） */
+    .thinking-bubble .tag{position:absolute;top:-9px;left:10px;z-index:1;display:inline-block;font-size:11px;color:#475569;background:#eef2f7;border:1px solid #e5e7eb;border-radius:6px;padding:2px 6px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+
+    @media (max-width:480px){
+      .thinking-bubble .tag{top:-8px;left:8px}
+      .thought{padding:8px 10px}
+      .thought-body{line-height:1.5}
+    }
+
+    .rethink-card{border:1px solid #f59e0b;border-radius:12px;padding:12px;background:#fffbeb;margin:8px 0;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .rethink-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .rethink-icon{font-size:16px}
+    .rethink-title{font-weight:600;font-size:14px;color:#d97706}
+    .rethink-content{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+    .rethink-item{font-size:12px;color:#374151;padding:2px 0;line-height:1.4}
+    .rethink-status{font-size:11px;color:#d97706;text-align:right}
+
+    .choice-card{border:1px solid #8b5cf6;border-radius:12px;padding:12px;background:#faf5ff;margin:8px 0;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .choice-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .choice-icon{font-size:16px}
+    .choice-title{font-weight:600;font-size:14px;color:#7c3aed}
+    .choice-options{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+    .choice-btn{padding:6px 12px;border:1px solid #c4b5fd;border-radius:8px;background:#fff;color:#7c3aed;font-size:12px;cursor:pointer;transition:all .15s}
+    .choice-btn:hover{background:#f3f4f6;border-color:#a78bfa}
+    .choice-btn.selected{background:#7c3aed;color:#fff;border-color:#7c3aed}
+    .choice-status{font-size:11px;color:#6b7280;text-align:right}
+
+    /* 右侧工作台状态面板 */
+    .status-panel{padding:16px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#fff,#fcfdfc)}
+    .status-item{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .status-item:last-child{margin-bottom:0}
+    .status-label{font-size:12px;color:var(--muted);font-weight:500}
+    .status-value{font-size:13px;color:#111827;font-weight:600}
+    .progress-container{display:flex;align-items:center;gap:8px;flex:1}
+    .progress-text{font-size:11px;color:var(--muted);min-width:30px;text-align:right}
+
     /* 取消抽象进度条视觉，改为具体工具调用日志 */
 
-    .workflow{background:var(--card);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.04)}
+    .workflow{background:var(--card);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.04);opacity:0;transform:translateX(20px);transition:opacity 0.4s ease,transform 0.4s ease}
+    .workflow.visible{opacity:1;transform:translateX(0)}
     .workflow__head{padding:12px 16px 10px 16px;border-bottom:1px solid var(--border)}
+    .workflow__tabs{display:flex;gap:8px;margin-top:8px}
+    .workflow__tab{padding:6px 12px;border:1px solid var(--border);background:#fff;border-radius:8px;font-size:12px;color:#374151;cursor:pointer}
+    .workflow__tab--active{background:#eef2ff;border-color:#c7d2fe;color:#3730a3;font-weight:600}
     .workflow__body{flex:1;display:flex;flex-direction:column;overflow:hidden}
+    .tab-pane{display:none;height:100%}
+    .tab-pane.active{display:block}
+    .files__header{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;color:#111827}
+    .files__list{list-style:none;margin:0;padding:10px 16px;display:flex;flex-direction:column;gap:8px;max-height:40%;overflow:auto}
+    .files__item{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:#fff;font-size:12px;color:#111827;cursor:pointer}
+    .files__item:hover{background:#f9fafb}
+    .files__preview{flex:1;border-top:1px solid var(--border);padding:12px 16px;font-size:12px;color:#374151;overflow:auto}
+    .workflow__footer{border-top:1px solid var(--border);padding:10px 16px;background:#fff}
+    .footer-status{display:flex;align-items:center;gap:8px;font-size:12px;color:#4b5563;margin-bottom:8px}
+    .footer-label{color:#6b7280}
+    .footer-value{color:#111827;font-weight:600}
+    .footer-sep{color:#d1d5db}
     
     /* 总体进度条（右侧）与阶段进度条（左侧黑盒） */
     .overall-progress{height:10px;width:100%;background:#eef2f7;border-radius:999px;overflow:hidden;margin:12px 0}
@@ -231,31 +365,21 @@
   <div class="stage" id="stage">
     <!-- Phase 1：全屏启动界面 -->
     <section class="launch" id="launch">
-      <!-- 左侧：资源广场（20%） -->
-      <aside class="launch-left" aria-label="资源广场">
+      <!-- 左侧：导航入口（15%） -->
+      <aside class="launch-left" aria-label="导航入口">
         <div class="left-header">
-          <h3 class="left-title">资源广场</h3>
-          <div class="tabs" role="tablist" aria-label="资源切换">
-            <button class="tab tab--active" data-tab="agents" role="tab" aria-selected="true" id="tab-agents">智能体</button>
-            <button class="tab" data-tab="plugins" role="tab" aria-selected="false" id="tab-plugins">MCP 插件</button>
-          </div>
+          <h3 class="left-title">工作台</h3>
         </div>
         <div class="left-content">
-          <div class="tab-panels">
-            <div class="tab-panel active" id="panel-agents" role="tabpanel" aria-labelledby="tab-agents">
-              <div class="toolbar">
-                <input id="agentSearch" class="input" style="max-width:100%" placeholder="搜索智能体..." />
-                <div id="agentChips" class="chips" aria-label="分类筛选"></div>
-              </div>
-              <div id="agentGrid" class="grid" aria-live="polite"></div>
-            </div>
-            <div class="tab-panel" id="panel-plugins" role="tabpanel" aria-labelledby="tab-plugins">
-              <div class="toolbar">
-                <input id="pluginSearch" class="input" style="max-width:100%" placeholder="搜索插件..." />
-                <div id="pluginChips" class="chips" aria-label="分类筛选"></div>
-              </div>
-              <div id="pluginGrid" class="grid" aria-live="polite"></div>
-            </div>
+          <div class="nav-buttons">
+            <button class="nav-btn" id="nav-agents" data-page="agents">
+              <span class="nav-icon">🤖</span>
+              <span class="nav-text">智能体广场</span>
+            </button>
+            <button class="nav-btn" id="nav-plugins" data-page="plugins">
+              <span class="nav-icon">🔌</span>
+              <span class="nav-text">MCP插件广场</span>
+            </button>
           </div>
         </div>
       </aside>
@@ -274,9 +398,39 @@
       </div>
     </section>
 
+    <!-- 智能体广场页面 -->
+    <section class="square-page hide" id="agents-page">
+      <div class="square-header">
+        <button class="back-btn" id="back-to-home">← 返回首页</button>
+        <h2 class="square-title">智能体广场</h2>
+      </div>
+      <div class="square-content">
+        <div class="square-toolbar">
+          <input id="agentSearchSquare" class="input" placeholder="搜索智能体..." />
+          <div id="agentChipsSquare" class="chips" aria-label="分类筛选"></div>
+        </div>
+        <div id="agentGridSquare" class="grid" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- 插件广场页面 -->
+    <section class="square-page hide" id="plugins-page">
+      <div class="square-header">
+        <button class="back-btn" id="back-to-home-plugins">← 返回首页</button>
+        <h2 class="square-title">MCP插件广场</h2>
+      </div>
+      <div class="square-content">
+        <div class="square-toolbar">
+          <input id="pluginSearchSquare" class="input" placeholder="搜索插件..." />
+          <div id="pluginChipsSquare" class="chips" aria-label="分类筛选"></div>
+        </div>
+        <div id="pluginGridSquare" class="grid" aria-live="polite"></div>
+      </div>
+    </section>
+
     <!-- Phase 2：工作台 -->
     <section class="workbench" id="workbench" aria-label="Workbench">
-      <div class="columns">
+      <div class="columns single" id="columns">
         <!-- 左侧：对话历史（消息轨道在面板内部居中） -->
         <div class="panel">
           <div class="panel__head">
@@ -287,20 +441,39 @@
           <div class="panel__footer" id="panelFooter"></div>
         </div>
 
-        <!-- 右侧：计划步骤和日志 -->
-        <div class="workflow">
+        <!-- 右侧：工作状态和日志（带标签与底部状态） -->
+        <div class="workflow hide" id="workflowPanel">
           <div class="workflow__head">
-            <h2 class="title" style="font-size:16px">工作执行情况展示</h2>
-            <p class="subtitle">整体进度与详细日志</p>
+            <h2 class="title" style="font-size:16px">工作台</h2>
+            <div class="workflow__tabs" id="workflowTabs">
+              <button class="workflow__tab workflow__tab--active" data-tab="follow">实时跟随</button>
+              <button class="workflow__tab" data-tab="files">文件</button>
+            </div>
           </div>
           <div class="workflow__body">
-            <div style="padding:16px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#fff,#fcfdfc)">
-              <div style="font-size:12px;color:var(--muted);margin-bottom:8px">总体进度</div>
-              <div class="overall-progress"><div class="overall-progress__bar" id="overallBar"></div></div>
+            <div class="tab-pane follow-pane active" id="tab-follow">
+              <div class="logs" id="logs">
+                <div class="log-line">提示：当任务开始后，这里将展示详细执行日志。</div>
+              </div>
             </div>
-            <div class="logs" id="logs">
-              <div class="log-line">提示：当任务开始后，这里将展示详细执行日志。</div>
+            <div class="tab-pane files-pane" id="tab-files">
+              <div class="files__header">产生的文件</div>
+              <ul class="files__list" id="filesList"></ul>
+              <div class="files__preview" id="filePreview">选择文件以查看详情</div>
             </div>
+          </div>
+          <div class="workflow__footer">
+            <div class="footer-status">
+              <span class="footer-label">状态</span>
+              <span class="footer-value" id="currentStatus">等待中</span>
+              <span class="footer-sep">|</span>
+              <span class="footer-label">阶段</span>
+              <span class="footer-value" id="currentPhase">-</span>
+              <span class="footer-sep">|</span>
+              <span class="footer-label">进度</span>
+              <span class="footer-value" id="progressText">0%</span>
+            </div>
+            <div class="overall-progress"><div class="overall-progress__bar" id="overallBar"></div></div>
           </div>
         </div>
       </div>
@@ -312,23 +485,28 @@
       const stage = document.getElementById('stage');
       const launch = document.getElementById('launch');
       const workbench = document.getElementById('workbench');
+      const columns = document.getElementById('columns');
+      const workflowPanel = document.getElementById('workflowPanel');
+      
+      // 页面路由相关
+      const agentsPage = document.getElementById('agents-page');
+      const pluginsPage = document.getElementById('plugins-page');
+      const navAgents = document.getElementById('nav-agents');
+      const navPlugins = document.getElementById('nav-plugins');
+      const backToHome = document.getElementById('back-to-home');
+      const backToHomePlugins = document.getElementById('back-to-home-plugins');
 
       const mainForm = document.getElementById('mainForm');
       const mainInput = document.getElementById('mainInput');
       const mainSend = document.getElementById('mainSend');
-      // 新增：标签与广场节点（启动界面左侧）
-      const tabs = Array.from(document.querySelectorAll('.launch-left .tab'));
-      const panels = {
-        agents: document.getElementById('panel-agents'),
-        plugins: document.getElementById('panel-plugins')
-      };
+      // 广场页面元素
       const selectionBar = document.getElementById('selectionBar');
-      const agentSearch = document.getElementById('agentSearch');
-      const agentChips = document.getElementById('agentChips');
-      const agentGrid = document.getElementById('agentGrid');
-      const pluginSearch = document.getElementById('pluginSearch');
-      const pluginChips = document.getElementById('pluginChips');
-      const pluginGrid = document.getElementById('pluginGrid');
+      const agentSearchSquare = document.getElementById('agentSearchSquare');
+      const agentChipsSquare = document.getElementById('agentChipsSquare');
+      const agentGridSquare = document.getElementById('agentGridSquare');
+      const pluginSearchSquare = document.getElementById('pluginSearchSquare');
+      const pluginChipsSquare = document.getElementById('pluginChipsSquare');
+      const pluginGridSquare = document.getElementById('pluginGridSquare');
       // 输入框 hover 提示预设文案
       const presetText = '请收集南海舆情的相关情况，生成一份简单的总结，并用一段音频内容播报这段总结内容';
 
@@ -337,16 +515,97 @@
       const panelFooter = document.getElementById('panelFooter');
 
       const logs = document.getElementById('logs');
+      const currentStatus = document.getElementById('currentStatus');
+      const currentPhase = document.getElementById('currentPhase');
+      const progressText = document.getElementById('progressText');
+      const tabsRoot = document.getElementById('workflowTabs');
+      const tabFollow = document.getElementById('tab-follow');
+      const tabFiles = document.getElementById('tab-files');
+      const filesList = document.getElementById('filesList');
+      const filePreview = document.getElementById('filePreview');
       // 无障碍：动态内容区域播报
       chatContainer.setAttribute('aria-live','polite');
       logs.setAttribute('aria-live','polite');
 
       let isBusy = false;
       let transitioned = false;
+      let currentPage = 'home';
+
+      // 页面路由功能
+      function showPage(pageName) {
+        // 隐藏所有页面
+        launch.classList.add('hide');
+        agentsPage.classList.add('hide');
+        pluginsPage.classList.add('hide');
+        
+        // 显示目标页面
+        if (pageName === 'home') {
+          launch.classList.remove('hide');
+        } else if (pageName === 'agents') {
+          agentsPage.classList.remove('hide');
+          agentsPage.classList.add('visible');
+        } else if (pageName === 'plugins') {
+          pluginsPage.classList.remove('hide');
+          pluginsPage.classList.add('visible');
+        }
+        
+        currentPage = pageName;
+      }
+
+      // 导航按钮事件
+      navAgents.addEventListener('click', () => showPage('agents'));
+      navPlugins.addEventListener('click', () => showPage('plugins'));
+      backToHome.addEventListener('click', () => showPage('home'));
+      backToHomePlugins.addEventListener('click', () => showPage('home'));
 
       function scrollChat(){ chatContainer.scrollTop = chatContainer.scrollHeight; }
       function scrollLogs(){ logs.scrollTop = logs.scrollHeight; }
       function setBusy(b){ isBusy = b; mainInput.disabled = b; mainSend.disabled = b; }
+      
+      function updateStatus(status, phase = null) {
+        currentStatus.textContent = status;
+        if (phase) currentPhase.textContent = phase;
+      }
+      
+      function updateProgress(percent) {
+        progressText.textContent = Math.round(percent) + '%';
+      }
+
+      // 右侧面板标签切换
+      function initTabs(){
+        if(!tabsRoot) return;
+        tabsRoot.addEventListener('click', (e)=>{
+          const btn = e.target.closest('.workflow__tab');
+          if(!btn) return;
+          const name = btn.getAttribute('data-tab');
+          tabsRoot.querySelectorAll('.workflow__tab').forEach(b=>b.classList.remove('workflow__tab--active'));
+          btn.classList.add('workflow__tab--active');
+          tabFollow.classList.toggle('active', name==='follow');
+          tabFiles.classList.toggle('active', name==='files');
+        });
+      }
+      initTabs();
+
+      // 文件列表动态更新
+      const producedFiles = [];
+      function addFileRecord(name, content){
+        const record = { name, content, time: new Date().toLocaleTimeString('zh-CN', {hour12:false}) };
+        producedFiles.push(record);
+        renderFiles();
+      }
+      function renderFiles(){
+        if(!filesList) return;
+        filesList.innerHTML = '';
+        producedFiles.forEach((f, idx)=>{
+          const li = document.createElement('li');
+          li.className = 'files__item';
+          li.innerHTML = `<span>${f.name}</span><span style="color:#6b7280">${f.time}</span>`;
+          li.addEventListener('click', ()=>{
+            if(filePreview) filePreview.textContent = f.content || '暂无预览内容';
+          });
+          filesList.appendChild(li);
+        });
+      }
 
       function addMessage({ role = 'system', html = '' }){
         const msg = document.createElement('div');
@@ -362,6 +621,31 @@
         chatContainer.appendChild(msg);
         scrollChat();
         return { msg, bubble };
+      }
+      async function typeText(el, text, speed = 30){
+        return new Promise(resolve=>{
+          let i = 0;
+          const timer = setInterval(()=>{
+            if(i < text.length){
+              el.textContent += text[i++];
+              scrollChat();
+            }else{ clearInterval(timer); resolve(); }
+          }, speed);
+        });
+      }
+      async function addTypedMessage({ role = 'system', prefixHtml = '', text = '', speed = 30 }){
+        const { bubble } = addMessage({ role, html: `${prefixHtml}<span class="typewriter-text"></span>` });
+        const el = bubble.querySelector('.typewriter-text');
+        await typeText(el, text, speed);
+        return bubble;
+      }
+      function addFlowLine(text, level = 0, strong = false){
+        const line = document.createElement('div');
+        line.className = 'flow-line ' + (level>0?`indent-${level}`:'root');
+        line.innerHTML = strong ? `<span>• ${text}</span>` : text;
+        chatContainer.appendChild(line);
+        scrollChat();
+        return line;
       }
       function updateBubble(bubble, html){ bubble.innerHTML = html; scrollChat(); }
 
@@ -436,117 +720,174 @@
       // 抽象进度条已移除，统一用具体工具调用日志替代
 
 
-      function showPlanningAndBindStart(){
-        // 需求分析展示（黑盒阶段）
-        const phases = [
-          { title:'信息检索与筛选', tools:[{name:'Serper API', action:'检索南海舆情相关新闻/报告'}] },
-          { title:'分析与总结', tools:[{name:'Text Analysis', action:'聚类与要点提炼'}] },
-          { title:'音频播报合成', tools:[{name:'TTS Engine', action:'根据总结生成音频'}] }
-        ];
-        const html = `
-          <div class="planning">
-            <h4><strong>需求分析</strong></h4>
-            <div class="small">基于输入推断用户可能想做的事情：</div>
-            <ul style="margin:8px 0;padding-left:18px;font-size:12px;color:#374151">
-              <li>收集南海地区最新舆情动态和热点事件</li>
-              <li>整理分析舆情数据，提取关键信息点</li>
-              <li>生成结构化的舆情总结报告</li>
-              <li>将总结内容转换为语音播报</li>
-            </ul>
-            <div class="small" style="margin-top:8px;color:#6b7280">系统将分阶段执行，每个阶段独立推进并展示详细过程。</div>
-            <button class="start-btn" id="startExecBtn">开始执行</button>
-          </div>
-        `;
-        const { bubble } = addMessage({ role:'system', html: html });
+      async function showPlanningAndBindStart(){
+        // 1) 需求分析：简约气泡 + 左上角“思考中...”标签 + 打字机
+        const analysisText = "分析用户需求：需要收集南海地区最新舆情动态并生成总结报告和音频播报。首先需要获取南海相关的最新新闻、热点事件和舆情数据，然后对信息进行筛选分类和关键点提取。考虑到音频播报需求，需要将总结内容结构化，分为舆情概述、热点分析、趋势预测等部分。需要确保信息来源权威准确，最后生成简洁明了的总结报告并转换为语音格式。";
 
-        const startBtn = bubble.querySelector('#startExecBtn');
-        startBtn.addEventListener('click', async ()=>{
-          if(isBusy) return;
-          setBusy(true);
-          appendLog('开始执行：开始任务推进', 'success');
-          appendDetailedLog('System', '初始化', '创建总体进度与阶段推进', 'start');
+        const thinkHtml = `
+          <div class="thought thinking-bubble">
+            <div class="tag">思考中...</div>
+            <div class="thought-body" data-collapsed="true" style="max-height:120px;overflow:hidden">
+              <span class="typewriter-text"></span>
+            </div>
+            <div class="thought-footer"><button class="thought-toggle" type="button">展开</button></div>
+          </div>`;
+        const { bubble } = addMessage({ role:'system', html: thinkHtml });
+        const toggle = bubble.querySelector('.thought-toggle');
+        const body = bubble.querySelector('.thought-body');
+        const typewriterEl = bubble.querySelector('.typewriter-text');
+        
+        // 打字机效果（等待其完成后再进入执行阶段）
+        const typingDone = typeText(typewriterEl, analysisText, 30);
+        await typingDone;
+        toggle.style.display = 'block';
+        
+        toggle.addEventListener('click', ()=>{
+          const collapsed = body.getAttribute('data-collapsed') === 'true';
+          if(collapsed){ body.style.maxHeight = 'none'; toggle.textContent = '收起'; }
+          else { body.style.maxHeight = '120px'; toggle.textContent = '展开'; }
+          body.setAttribute('data-collapsed', (!collapsed).toString());
+        });
+
+        // 2) 自动开始执行（严格顺序：在需求分析完全显示后）
+        // 保持 busy 状态以阻止用户输入，并继续执行后续步骤
+        setBusy(true);
+          updateStatus('需求分析中', '分析阶段'); updateProgress(5);
+          appendDetailedLog('System', '需求分析', '完成需求分析，准备执行', 'success');
+
+          // 定义精简工具调用流程（无复杂参数展示）
+          const calls = [
+            { tool:'Serper API', action:'检索南海相关新闻与舆情数据' },
+            { tool:'Text Analysis', action:'对信息进行聚类与关键点提取' },
+            { tool:'Report Generator', action:'生成结构化总结报告' },
+            { tool:'TTS Engine', action:'将总结内容转换为语音播报', decision:true }
+          ];
 
           const overallBar = document.getElementById('overallBar');
 
-          // 依次推进每个阶段（独立出现，不是一开始全展示）
-          for(let i=0;i<phases.length;i++){
-            const phase = phases[i];
-            
-            // 为当前阶段创建独立的阶段卡片
-            const { bubble: phaseBubble } = addMessage({ 
-              role:'system', 
-              html:`<div class="phase"><h5 class="phase-title">${phase.title}</h5><div class="phase-progress"><div class="phase-progress__bar"></div></div><div class="small">开始执行...</div></div>` 
-            });
-            const bar = phaseBubble.querySelector('.phase-progress__bar');
-            const info = phaseBubble.querySelector('.small');
-            
-            appendLog(`阶段${i+1} 开始：${phase.title}`, 'info');
-            appendDetailedLog(phase.tools[0].name, '初始化', '准备执行 ' + phase.tools[0].action, 'start');
+          for(let i=0;i<calls.length;i++){
+            const c = calls[i];
 
-            // 模拟阶段内部推进，并展示详细的工具调用和阶段性成果
-            await new Promise(resolve=>{
-              const total = 2000 + Math.random()*800;
-              const start = Date.now();
-              const timer = setInterval(()=>{
-                const progress = Math.min(100, Math.round((Date.now()-start)/total*100));
-                bar.style.width = progress + '%';
-                overallBar.style.width = Math.round(((i + progress/100)/phases.length)*100) + '%';
-                
-                // 在进度条下方展示工具调用详情
-                if(progress >= 30 && !info.dataset.tool1Shown){
-                  info.innerHTML = '执行中...<br/><span style="color:#1e40af;font-size:11px">调用 ' + phase.tools[0].name + ': ' + phase.tools[0].action + '</span>';
-                  info.dataset.tool1Shown = 'true';
-                  appendDetailedLog(phase.tools[0].name, '执行中', '正在执行 ' + phase.tools[0].action, 'running');
-                }
-                if(progress >= 60 && !info.dataset.tool2Shown){
-                  info.innerHTML += '<br/><span style="color:#059669;font-size:11px">工具调用完成，开始处理数据...</span>';
-                  info.dataset.tool2Shown = 'true';
-                  appendDetailedLog(phase.tools[0].name, '数据处理', '开始处理返回的数据，进行格式化和分析', 'running');
-                }
-                if(progress >= 90 && !info.dataset.resultShown){
-                  const results = {
-                    '信息检索与筛选': '检索到15条相关新闻，筛选出8条核心信息',
-                    '分析与总结': '完成数据聚类分析，提取4个关键要点',
-                    '音频播报合成': '生成2分30秒音频文件，音质清晰'
-                  };
-                  info.innerHTML += '<br/><span style="color:#059669;font-size:11px">阶段性成果: ' + results[phase.title] + '</span>';
-                  info.dataset.resultShown = 'true';
-                  appendDetailedLog(phase.tools[0].name, '完成', results[phase.title], 'success');
-                }
-                
-                if(progress>=100){ 
-                  clearInterval(timer); 
-                  info.innerHTML = '完成';
+            // 在第一个工具调用开始时，展开右侧面板与双栏布局
+            if(i===0){
+              // 展开工作台布局
+              columns.classList.remove('single');
+              // 显示右侧面板并添加动画
+              workflowPanel.classList.remove('hide');
+              setTimeout(() => {
+                workflowPanel.classList.add('visible');
+              }, 100);
+            }
+
+            // 步骤开始（根级别，黑点强调，系统气泡逐字）
+            const stepTitles = [
+              '• 现在开始收集南海舆情的相关资料...',
+              '• 开始分析舆情数据并提取关键点...',
+              '• 开始生成结构化总结报告...',
+              '• 开始生成音频播报内容...'
+            ];
+            await addTypedMessage({ role: 'system', prefixHtml: '', text: stepTitles[i], speed: 24 });
+            updateStatus('执行中', c.action);
+
+            // 步骤内操作（系统气泡逐字）
+            await addTypedMessage({ role: 'system', prefixHtml: '', text: `调用${c.tool}，${c.action}`, speed: 26 });
+            appendLog(`调用 ${c.tool}：${c.action}`, 'info');
+
+            // 步骤内思考（系统气泡逐字）
+            const stepThoughts = [
+              '基于搜索结果，发现需要调整关键词覆盖更多维度',
+              '基于聚类分析结果，识别出主要观点和趋势',
+              '基于分析结果，构建结构化的报告框架',
+              '基于报告内容，准备语音播报参数'
+            ];
+            await addTypedMessage({ role: 'system', prefixHtml: '', text: stepThoughts[i], speed: 26 });
+
+            // 如需用户决策，则在调用前插入对话内选择
+            if(c.decision){
+              const choiceHtml = `
+                <div class="inline-choice">
+                  <div class="inline-choice-title">请选择播报风格</div>
+                  <div class="inline-choice-options">
+                    <button class="inline-choice-btn" data-voice="kanghui">康辉</button>
+                    <button class="inline-choice-btn" data-voice="dongxuan">董璇</button>
+                    <button class="inline-choice-btn" data-voice="trump">特朗普</button>
+                  </div>
+                  <div class="inline-choice-status small">等待您的选择...</div>
+                </div>
+              `;
+              const { bubble: choiceBubble } = addMessage({ role:'system', html: choiceHtml });
+              await new Promise(resolve=>{
+                choiceBubble.querySelectorAll('.inline-choice-btn').forEach(btn=>{
+                  btn.addEventListener('click', ()=>{
+                    choiceBubble.querySelectorAll('.inline-choice-btn').forEach(b=>b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    const st = choiceBubble.querySelector('.inline-choice-status');
+                    st.textContent = `已选择：${btn.textContent}`;
+                    st.style.color = '#059669';
+                    appendLog(`用户选择语音风格：${btn.textContent}`, 'success');
                   resolve(); 
-                }
-              }, 120);
+                  });
+                });
+              });
+            }
+
+            // 模拟工具执行进度（简化）
+            await new Promise(resolve=>{
+              const total = 1200 + Math.random()*800; const start = Date.now();
+              const t = setInterval(()=>{
+                const p = Math.min(100, Math.round((Date.now()-start)/total*100));
+                const overall = Math.round(((i + p/100)/calls.length)*100);
+                overallBar.style.width = overall + '%'; updateProgress(overall);
+                if(p>=100){ clearInterval(t); resolve(); }
+              }, 100);
             });
 
-            appendLog(`阶段${i+1} 完成：${phase.title}`, 'success');
+            appendLog(`完成：${c.tool} - ${c.action}`, 'success');
+            // 步骤间思考（简约思考气泡 + 打字机）
+            const betweenThoughts = [
+              '基于舆情数据收集结果，下一步需要进行信息聚类分析',
+              '基于聚类分析结果，下一步需要生成结构化总结报告',
+              '总结报告已生成，下一步将文本内容转换为语音播报'
+            ];
+            if(i < betweenThoughts.length){
+              const bt = `\n          <div class=\"thought thinking-bubble\">\n            <div class=\"tag\">思考中...</div>\n            <div class=\"thought-body\"><span class=\"typewriter-text\"></span></div>\n          </div>`;
+              const { bubble: btBubble } = addMessage({ role:'system', html: bt });
+              const el = btBubble.querySelector('.typewriter-text');
+              await typeText(el, betweenThoughts[i], 26);
+            }
           }
 
-          appendLog('全部阶段完成', 'success');
-          appendDetailedLog('System', '任务完成', '黑盒流程已完成并输出阶段结果', 'success');
-
-          // 输出最终结果卡片（简洁版）
-          const { bubble: resultBubble } = addMessage({ 
-            role:'system', 
-            html:`
-              <div class="planning" style="background:#f0f9ff;border-color:#0ea5e9">
-                <h4><strong>任务完成</strong></h4>
-                <div style="margin:8px 0;font-size:13px;color:#374151;line-height:1.4">
-                  <strong>舆情总结：</strong>南海地区热点集中在资源开发争议，国际关注度上升，需加强对话合作。<br/>
-                  <strong>音频播报：</strong><a href="#" style="color:#3b82f6;text-decoration:none">播放音频</a> (2分30秒)
+          // 结果输出：先简洁总结，再简洁结果卡片
+          updateStatus('任务完成', '全部完成'); updateProgress(100);
+          addMessage({ role:'system', html: '任务完成：已生成舆情总结与音频播报。' });
+          addMessage({ role:'system', html: `
+            <div class="result-card minimal">
+              <div class="result-header">
+                <span class="result-title">结果</span>
                 </div>
-                <div class="small" style="color:#6b7280;margin-top:6px">
-                  ${new Date().toLocaleString('zh-CN')} | 多平台舆情监测
+              <div class="result-content">
+                <div class="result-item">舆情总结：南海热点集中在资源开发争议与地区博弈。</div>
+                <div class="result-item">音频播报：<a href="#" style="color:#2563eb;text-decoration:none">点击播放</a>（约2分30秒）</div>
                 </div>
+              <div class="result-meta">${new Date().toLocaleString('zh-CN')}</div>
               </div>
-            ` 
-          });
+          `});
 
           setBusy(false);
-        }, { once:true });
+        
+      }
+
+      // 步骤间思考：基于上一步结果决定下一步
+      function continueThinking(prevCall, index, total){
+        const texts = [
+          '基于舆情数据分析，下一步需要生成结构化报告',
+          '基于聚类分析结果，下一步需要生成结构化总结报告',
+          '总结报告已生成，下一步将文本内容转换为语音播报',
+          '音频生成完成，准备输出最终结果'
+        ];
+        const content = texts[Math.min(index, texts.length-1)];
+        // 步骤间过渡思考：与步骤开始同级（不缩进）
+        addFlowLine(content, 0, false);
       }
 
       function dockFormIntoPanel(){
@@ -607,21 +948,22 @@
         const hasVideo = lower.includes('视频') || lower.includes('video') || lower.includes('脚本') || lower.includes('总结');
 
         if(!(hasSouthChinaSea && hasVideo)){
-          addMessage({ role:'system', html:'您好！现在提供三种入口：在“任务”页直接输入，或先到“智能体广场 / MCP 插件广场”浏览并选择后再输入。演示任务建议包含“南海”和“总结”。' });
+          addMessage({ role:'system', html:'您好！现在提供三种入口：在"任务"页直接输入，或先到"智能体广场 / MCP 插件广场"浏览并选择后再输入。演示任务建议包含"南海"和"总结"。' });
           return;
         }
 
         startTransition();
+
+        // 新顺序：先显示用户消息（右侧气泡），再显示系统确认（左侧气泡）
+        addMessage({ role:'user', html: trimmed });
+        addMessage({ role:'system', html:'已经收到你的任务，即将开始分析' });
+        
         appendLog('收到新任务：开始需求分析', 'info');
         appendDetailedLog('System', '任务接收', '用户输入已接收，开始需求分析', 'start');
 
-        addMessage({ role:'user', html: trimmed });
-
+        // 2. 延迟后开始显示需求分析（不在此处解除忙碌；交给分析完成后处理）
         setBusy(true);
-        setTimeout(()=>{
-          showPlanningAndBindStart();
-          setBusy(false);
-        }, 450);
+        setTimeout(()=>{ showPlanningAndBindStart(); }, 1500);
       }
 
       mainForm.addEventListener('submit', (e)=>{
@@ -725,14 +1067,14 @@
       let agentFilter = { q:'', cat:'全部' };
       let pluginFilter = { q:'', cat:'全部' };
 
-      function renderAgentGrid(){
+      function renderAgentGrid(targetGrid = agentGridSquare){
         const q = agentFilter.q.trim().toLowerCase();
         const cat = agentFilter.cat;
         const list = agentCatalog.filter(a=>
           (cat==='全部'||a.category===cat) &&
           (!q || a.name.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q))
         );
-        agentGrid.innerHTML = '';
+        targetGrid.innerHTML = '';
         list.forEach(a=>{
           const card = document.createElement('div');
           card.className = 'card';
@@ -741,24 +1083,24 @@
             <p>${a.desc}</p>
             <div class="meta"><span>${a.category}</span>
             <button class="select-btn ${selected.agents.has(a.id)?'selected':''}" data-id="${a.id}">${selected.agents.has(a.id)?'已选择':'选择'}</button></div>`;
-          agentGrid.appendChild(card);
+          targetGrid.appendChild(card);
           const btn = card.querySelector('.select-btn');
           btn.addEventListener('click', ()=>{
             if(selected.agents.has(a.id)) selected.agents.delete(a.id); else selected.agents.add(a.id);
-            renderAgentGrid();
+            renderAgentGrid(targetGrid);
             renderBadges();
           });
         });
       }
 
-      function renderPluginGrid(){
+      function renderPluginGrid(targetGrid = pluginGridSquare){
         const q = pluginFilter.q.trim().toLowerCase();
         const cat = pluginFilter.cat;
         const list = pluginCatalog.filter(p=>
           (cat==='全部'||p.category===cat) &&
           (!q || p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q))
         );
-        pluginGrid.innerHTML = '';
+        targetGrid.innerHTML = '';
         list.forEach(p=>{
           const card = document.createElement('div');
           card.className = 'card';
@@ -767,23 +1109,25 @@
             <p>${p.desc}</p>
             <div class="meta"><span>${p.category}</span>
             <button class="select-btn ${selected.plugins.has(p.id)?'selected':''}" data-id="${p.id}">${selected.plugins.has(p.id)?'已启用':'启用'}</button></div>`;
-          pluginGrid.appendChild(card);
+          targetGrid.appendChild(card);
           const btn = card.querySelector('.select-btn');
           btn.addEventListener('click', ()=>{
             if(selected.plugins.has(p.id)) selected.plugins.delete(p.id); else selected.plugins.add(p.id);
-            renderPluginGrid();
+            renderPluginGrid(targetGrid);
             renderBadges();
           });
         });
       }
 
-      // 初始化 chips、搜索与网格
-      buildChips(agentChips, agentCategories, (c)=>{ agentFilter.cat=c; renderAgentGrid(); });
-      buildChips(pluginChips, pluginCategories, (c)=>{ pluginFilter.cat=c; renderPluginGrid(); });
-      agentSearch.addEventListener('input', ()=>{ agentFilter.q = agentSearch.value; renderAgentGrid(); });
-      pluginSearch.addEventListener('input', ()=>{ pluginFilter.q = pluginSearch.value; renderPluginGrid(); });
-      renderAgentGrid();
-      renderPluginGrid();
+      // 初始化首页功能（已移除，现在使用广场页面）
+      
+      // 初始化广场页面功能
+      buildChips(agentChipsSquare, agentCategories, (c)=>{ agentFilter.cat=c; renderAgentGrid(agentGridSquare); });
+      buildChips(pluginChipsSquare, pluginCategories, (c)=>{ pluginFilter.cat=c; renderPluginGrid(pluginGridSquare); });
+      agentSearchSquare.addEventListener('input', ()=>{ agentFilter.q = agentSearchSquare.value; renderAgentGrid(agentGridSquare); });
+      pluginSearchSquare.addEventListener('input', ()=>{ pluginFilter.q = pluginSearchSquare.value; renderPluginGrid(pluginGridSquare); });
+      renderAgentGrid(agentGridSquare);
+      renderPluginGrid(pluginGridSquare);
       renderBadges();
     })();
   </script>
